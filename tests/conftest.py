@@ -17,7 +17,7 @@ def mock_sentence_transformer(monkeypatch):
 class MockTokenizer:
     def __init__(self, *args, **kwargs):
         self.eos_token_id = 0
-    def __call__(self, text, return_tensors):
+    def __call__(self, text, *args, **kwargs):
         class Inputs:
             def __init__(self):
                 import torch

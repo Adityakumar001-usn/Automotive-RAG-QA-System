@@ -93,3 +93,11 @@ The test suite ensures offline reliability. `SentenceTransformer` and HuggingFac
 ```bash
 python3 -m pytest tests/
 ```
+
+### Phase 3: Context Window Study
+Phase 3 expands the QA system by introducing an evaluation framework designed to benchmark different context window sizes.
+1. **Benchmark Runner (`src/benchmark_runner.py`)**: Automates executions over multiple configurations, saving granular and aggregate datasets via CSVs.
+2. **Metrics Collector (`src/metrics_collector.py`)**: Employs `psutil` and PyTorch profiling to actively monitor CPU and GPU memory loads without altering underlying mechanisms.
+3. **Context Window Experiments (`src/context_window_experiment.py`)**: Intercepts retrieved document chunks and trims them accurately at specific Token boundaries (using the exact active Tokenizer) preventing context overflow inherently while providing real analytical constraints.
+
+Running the evaluation experiment produces full analytical graphics (latency, memory, quality) directly into the `results/` folder, completing Task 6 research metrics.

@@ -27,6 +27,15 @@ class RAGEvaluator:
         """
         return len(response.get("retrieved_chunks", []))
 
+    def retrieval_hit_rate(self, responses: list[Dict[str, Any]]) -> float:
+        """
+        Calculates the percentage of responses where a valid grounded answer was found.
+        """
+        if not responses:
+            return 0.0
+        hits = sum(1 for r in responses if self.answer_found(r))
+        return hits / len(responses)
+
     def average_distance(self, response: Dict[str, Any]) -> float:
         """
         Calculates the average distance from the retrieved sources.

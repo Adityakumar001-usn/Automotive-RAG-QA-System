@@ -27,3 +27,7 @@ A lightweight `RAGEvaluator` class has been implemented strictly determining if 
 * Added programmatic context protection limits.
 * Enhanced evaluator logic to return `average_distance` and `average_retrieval_score`.
 * Device tensor execution mapping now utilizes the inherent model instance `device` mapping rather than explicit CUDA allocations, preventing placement mismatch errors when combined with BitsAndBytes configuration boundaries.
+
+### Phase 3 Benchmarking
+* Integrated `ContextWindowExperiment` mapping retrieved contexts against the active Tokenizer length to test precisely `512`, `1024`, `2048`, and `4096` token contexts.
+* Established an offline automated analytical suite preventing external database or framework introduction, fulfilling the criteria for standard offline deployment while matching the strict metrics format (CSV arrays + Matplotlib pngs + Markdown auto-analysis).
