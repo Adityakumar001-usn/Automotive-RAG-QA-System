@@ -16,14 +16,28 @@ class PromptBuilder:
     def build_prompt(self, question: str, retrieved_chunks: List[Dict[str, Any]]) -> str:
         """
         Builds the final prompt combining system instructions, retrieved context, and user question.
-        Ensures strict grounding to prevent hallucinations.
+
+        Why it exists:
+        AI models need clear instructions on how to act. We take the facts we found (chunks) and the user's
+        question, and package them into a strict template that tells the AI to NOT invent answers.
+
+        Inputs:
+        question (str): The user's query.
+        retrieved_chunks (List): The blocks of text containing the facts.
+
+        Outputs:
+        str: The final, formatted string that is sent to the LLM.
         """
+        import time
+        start = time.time()
+        logger.info("[PHASE 6] Prompt Construction - Start")
+
         from src.config import MAX_CONTEXT_CHARS
 
-        # Combine all chunk texts
+        # Combine all chunk texts with blank lines between them
         context_text = "\n\n".join([item["chunk"] for item in retrieved_chunks if "chunk" in item])
 
-        # Truncate context to prevent Model Context Window Overflow
+        # Truncate context to prevent Model Context Window Overflow. If we feed too much text to an AI, it crashes.
         if len(context_text) > MAX_CONTEXT_CHARS:
             logger.warning(f"Context exceeds {MAX_CONTEXT_CHARS} characters. Truncating to prevent overflow.")
             context_text = context_text[:MAX_CONTEXT_CHARS]
@@ -35,5 +49,5 @@ class PromptBuilder:
             f"Answer:"
         )
 
-        logger.info("Successfully built prompt from question and chunks.")
+        logger.info(f"[PHASE 6] Prompt Construction - Completed in {time.time()-start:.4f}s.")
         return prompt

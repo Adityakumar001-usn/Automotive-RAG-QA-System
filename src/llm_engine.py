@@ -56,7 +56,21 @@ class LLMEngine:
     def generate_response(self, prompt: str) -> str:
         """
         Generates a string answer given the constructed prompt.
+
+        Why it exists:
+        This is where the magic happens! We feed the final instructional prompt into the massive AI model.
+        The AI predicts the best words to follow our prompt, generating the human-readable answer.
+
+        Inputs:
+        prompt (str): The structured instructions containing the context and question.
+
+        Outputs:
+        str: The AI's generated answer text.
         """
+        import time
+        start = time.time()
+        logger.info("[PHASE 7] LLM Generation - Start")
+
         self._load_model()
 
         global _MODEL, _TOKENIZER
@@ -80,5 +94,5 @@ class LLMEngine:
         generated_tokens = outputs[0][input_length:]
         answer = _TOKENIZER.decode(generated_tokens, skip_special_tokens=True).strip()
 
-        logger.info("Generated answer successfully.")
+        logger.info(f"[PHASE 7] LLM Generation - Completed in {time.time()-start:.2f}s.")
         return answer

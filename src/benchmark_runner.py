@@ -2,6 +2,7 @@ import os
 import json
 import csv
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from typing import List, Dict, Any
 from src.context_window_experiment import ContextWindowExperiment
 from src.metrics_collector import MetricsCollector
@@ -31,12 +32,14 @@ class BenchmarkRunner:
         logger.info(f"Starting Phase 3 Benchmark on {len(self.questions)} questions across {len(self.windows)} windows.")
 
         for window in self.windows:
+            logger.info(f"--- Running Benchmark for Window Size: {window} Tokens ---")
             window_responses = []
             latencies = []
             memory_cpus = []
             memory_gpus = []
 
-            for q in self.questions:
+            # Use tqdm to give live progress output for questions inside the benchmark
+            for q in tqdm(self.questions, desc=f"Evaluating Window {window}"):
                 # Measure memory before
                 mem_cpu_before = self.metrics.get_cpu_memory_mb()
                 self.metrics.reset_peak_gpu_memory()
@@ -93,6 +96,20 @@ class BenchmarkRunner:
                 "avg_retrieval_score": avg_score
             })
 
+            # Phase 4 Live Interpretation Output
+            logger.info(f"\nWindow Size: {window}")
+            logger.info(f"Latency: {avg_latency:.2f} ms")
+            logger.info(f"Memory: {avg_cpu + avg_gpu:.2f} MB")
+            logger.info(f"Hit Rate: {hit_rate:.2f}")
+            logger.info(f"Utilization: {avg_utilization:.2f}%\n")
+
+            if window == 512:
+                logger.info("Interpretation: Fastest, but risks truncating critical grounded context leading to hallucination.")
+            elif window in [1024, 2048]:
+                logger.info("Interpretation: Provides balanced performance with moderate resource usage and high hit rates.")
+            elif window == 4096:
+                logger.info("Interpretation: Captures maximum context, but has slower inference and highest probability of VRAM exhaustion on constrained hardware.")
+
     def generate_outputs(self):
         """Generates the required CSVs, Plots, and Markdown analysis."""
         self._write_csvs()
@@ -132,46 +149,86 @@ class BenchmarkRunner:
         latencies = [r["avg_latency_ms"] for r in self.summary_results]
         memories = [r["avg_memory_cpu_mb"] + r["avg_memory_gpu_mb"] for r in self.summary_results]
         hit_rates = [r["hit_rate"] for r in self.summary_results]
+        utilizations = [r["avg_utilization_percent"] for r in self.summary_results]
+
+        # Setting consistent styling
+        plt.style.use('default')
 
         # Latency Plot
-        plt.figure()
-        plt.plot(windows, latencies, marker='o')
-        plt.title('Average Latency vs Context Window Size')
-        plt.xlabel('Window Size (Tokens)')
-        plt.ylabel('Latency (ms)')
-        plt.grid(True)
-        plt.savefig(f"{self.results_dir}/latency_plot.png")
+        plt.figure(figsize=(8, 6))
+        plt.plot(windows, latencies, marker='o', linewidth=2, label="Latency")
+        plt.title('Average Latency vs Context Window Size', fontsize=14, fontweight='bold')
+        plt.xlabel('Window Size (Tokens)', fontsize=12)
+        plt.ylabel('Latency (ms)', fontsize=12)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig(f"{self.results_dir}/latency_plot.png", dpi=300)
         plt.close()
 
         # Memory Plot
-        plt.figure()
-        plt.plot(windows, memories, marker='s', color='orange')
-        plt.title('Total Memory Usage vs Context Window Size')
-        plt.xlabel('Window Size (Tokens)')
-        plt.ylabel('Memory (MB)')
-        plt.grid(True)
-        plt.savefig(f"{self.results_dir}/memory_plot.png")
+        plt.figure(figsize=(8, 6))
+        plt.plot(windows, memories, marker='s', color='orange', linewidth=2, label="Memory")
+        plt.title('Total Memory Usage vs Context Window Size', fontsize=14, fontweight='bold')
+        plt.xlabel('Window Size (Tokens)', fontsize=12)
+        plt.ylabel('Memory (MB)', fontsize=12)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig(f"{self.results_dir}/memory_plot.png", dpi=300)
         plt.close()
 
         # Quality Plot
-        plt.figure()
-        plt.plot(windows, hit_rates, marker='^', color='green')
-        plt.title('Answer Hit Rate vs Context Window Size')
-        plt.xlabel('Window Size (Tokens)')
-        plt.ylabel('Hit Rate')
-        plt.grid(True)
-        plt.savefig(f"{self.results_dir}/answer_quality_plot.png")
+        plt.figure(figsize=(8, 6))
+        plt.plot(windows, hit_rates, marker='^', color='green', linewidth=2, label="Hit Rate")
+        plt.title('Answer Hit Rate vs Context Window Size', fontsize=14, fontweight='bold')
+        plt.xlabel('Window Size (Tokens)', fontsize=12)
+        plt.ylabel('Hit Rate (0.0 to 1.0)', fontsize=12)
+        plt.ylim(0.0, 1.1)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig(f"{self.results_dir}/answer_quality_plot.png", dpi=300)
         plt.close()
 
         # Utilization Plot
-        utilizations = [r["avg_utilization_percent"] for r in self.summary_results]
-        plt.figure()
-        plt.plot(windows, utilizations, marker='D', color='purple')
-        plt.title('Average Context Utilization vs Window Size')
-        plt.xlabel('Window Size (Tokens)')
-        plt.ylabel('Utilization (%)')
-        plt.grid(True)
-        plt.savefig(f"{self.results_dir}/context_utilization_plot.png")
+        plt.figure(figsize=(8, 6))
+        plt.plot(windows, utilizations, marker='D', color='purple', linewidth=2, label="Utilization")
+        plt.title('Average Context Utilization vs Window Size', fontsize=14, fontweight='bold')
+        plt.xlabel('Window Size (Tokens)', fontsize=12)
+        plt.ylabel('Utilization (%)', fontsize=12)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig(f"{self.results_dir}/context_utilization_plot.png", dpi=300)
+        plt.close()
+
+        # Comparison Dashboard
+        fig, axs = plt.subplots(2, 2, figsize=(14, 10))
+        fig.suptitle('Phase 3: Context Window Evaluation Dashboard', fontsize=16, fontweight='bold')
+
+        axs[0, 0].plot(windows, latencies, marker='o', color='blue')
+        axs[0, 0].set_title('Latency (ms)')
+        axs[0, 0].grid(True, linestyle='--', alpha=0.7)
+
+        axs[0, 1].plot(windows, memories, marker='s', color='orange')
+        axs[0, 1].set_title('Memory (MB)')
+        axs[0, 1].grid(True, linestyle='--', alpha=0.7)
+
+        axs[1, 0].plot(windows, hit_rates, marker='^', color='green')
+        axs[1, 0].set_title('Answer Hit Rate')
+        axs[1, 0].set_ylim(0, 1.1)
+        axs[1, 0].grid(True, linestyle='--', alpha=0.7)
+
+        axs[1, 1].plot(windows, utilizations, marker='D', color='purple')
+        axs[1, 1].set_title('Context Utilization (%)')
+        axs[1, 1].grid(True, linestyle='--', alpha=0.7)
+
+        for ax in axs.flat:
+            ax.set_xlabel('Tokens')
+
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plt.savefig(f"{self.results_dir}/comparison_dashboard.png", dpi=300)
         plt.close()
 
     def _generate_markdown_analysis(self):

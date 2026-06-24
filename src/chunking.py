@@ -8,24 +8,51 @@ from src.config import CHUNK_SIZE, CHUNK_OVERLAP
 
 def fixed_chunking(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
     """
-    Splits text into fixed size chunks (by character count).
+    Splits a long document into perfectly equal-sized blocks of text.
+
+    Why it exists:
+    AI models can only read a certain amount of text at once. We cut large documents into smaller pieces
+    called "chunks". This method just slices blindly every `chunk_size` characters.
+
+    Inputs:
+    text (str): The massive string of the whole document.
+    chunk_size (int): The number of characters per slice.
+
+    Outputs:
+    List[str]: A list where each item is a slice of the text.
     """
     if not text:
         return []
 
+    # Loop through the text, jumping forward by 'chunk_size' each time, and grabbing that slice.
     chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
     return chunks
 
 def overlap_chunking(text: str, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP) -> List[str]:
     """
-    Splits text into overlapping chunks (by character count).
+    Splits text into blocks, but repeats some text at the end of one block and the start of the next.
+
+    Why it exists:
+    If we slice a document blindly (like in fixed_chunking), we might cut a sentence in half.
+    By overlapping chunks, we ensure context isn't lost at the boundaries.
+
+    Inputs:
+    text (str): The massive string of the whole document.
+    chunk_size (int): The size of the slice.
+    chunk_overlap (int): How many characters to repeat between slices.
+
+    Outputs:
+    List[str]: A list of overlapping text slices.
     """
     if not text:
         return []
 
+    # We can't overlap more than the chunk itself!
     if chunk_size <= chunk_overlap:
         raise ValueError("chunk_size must be greater than chunk_overlap")
 
+    # Step is how far forward we jump before taking the next slice.
+    # By making the step smaller than the chunk_size, the slices overlap.
     step = chunk_size - chunk_overlap
     chunks = [text[i:i+chunk_size] for i in range(0, len(text), step)]
     return chunks

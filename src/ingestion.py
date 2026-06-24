@@ -11,16 +11,32 @@ from src.utils import get_logger, clean_text
 logger = get_logger(__name__)
 
 def extract_pdf(file_path: str) -> Tuple[str, int]:
-    """Extracts text from a PDF file."""
+    """
+    Extracts text from a PDF file.
+
+    Why it exists:
+    PDFs are standard in automotive repair manuals. We need to convert visual pages into raw text strings
+    so the AI can read them later.
+
+    Inputs:
+    file_path (str): The exact location of the PDF file on the computer.
+
+    Outputs:
+    Tuple[str, int]: A package containing the full text combined into one long string, and the total number of pages.
+    """
     text = ""
     try:
+        # Open the PDF using the PyMuPDF library (fitz). It's fast and handles complex layouts well.
         doc = fitz.open(file_path)
         num_pages = len(doc)
+
+        # Go through the document one page at a time.
         for page in doc:
-            page_text = page.get_text("text")
+            page_text = page.get_text("text") # Pull out just the readable text
             if page_text:
-                text += page_text + "\n"
-        doc.close()
+                text += page_text + "\n" # Add it to our running total with a newline for spacing
+
+        doc.close() # Always close files to free up computer memory
         return text, num_pages
     except Exception as e:
         logger.error(f"Error extracting PDF {file_path}: {e}")

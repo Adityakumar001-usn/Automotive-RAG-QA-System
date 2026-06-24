@@ -25,8 +25,18 @@ class AutomotiveRAG:
         2. Builds prompt
         3. Generates answer using LLM
         4. Extracts and formats sources with complete traceability
+
+        Why it exists:
+        This is the main controller for the application. It hands off data like an assembly line between the
+        database (Retriever), prompt formatter (PromptBuilder), and AI (LLMEngine).
+
+        Inputs:
+        question (str): The user's query.
+
+        Outputs:
+        Dict: A large structured dictionary containing the answer and all the metadata/evidence for transparency.
         """
-        logger.info(f"Processing question: '{question}'")
+        logger.info(f"\n--- RAG PIPELINE STARTED FOR: '{question}' ---")
 
         # 1. Retrieve with Latency Measurement
         start_time = time.time()
@@ -90,5 +100,5 @@ class AutomotiveRAG:
                 json.dump(log_entry, f, indent=2)
             logger.info(f"Retrieval log written to {log_file}")
 
-        logger.info("Successfully completed QA pipeline.")
+        logger.info("--- RAG PIPELINE COMPLETED SUCCESSFULLY ---\n")
         return result

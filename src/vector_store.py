@@ -37,15 +37,20 @@ class VectorStore:
         # Ensure type is float32 for FAISS
         embeddings = np.ascontiguousarray(embeddings, dtype=np.float32)
 
-        start_id = self.index.ntotal
-        self.index.add(embeddings)
+        from tqdm import tqdm
+        logger.info(f"[PHASE 4] FAISS Indexing - Adding vectors to database")
 
-        for i in range(embeddings.shape[0]):
+        start_id = self.index.ntotal
+        self.index.add(embeddings) # This puts the math arrays into the fast search engine
+
+        # We must also save the actual readable text and metadata, because FAISS only stores numbers.
+        # We loop through, matching the index ID to the actual text chunk.
+        for i in tqdm(range(embeddings.shape[0]), desc="Mapping vectors to text"):
             idx = start_id + i
             self.chunk_store[idx] = chunks[i]
             self.metadata_store[idx] = metadatas[i]
 
-        logger.info(f"Added {embeddings.shape[0]} vectors to FAISS index. Total vectors: {self.index.ntotal}")
+        logger.info(f"Completed FAISS Indexing! Added {embeddings.shape[0]} vectors. Total vectors: {self.index.ntotal}")
 
     def save_index(self, output_dir: str = "faiss_index") -> None:
         """
