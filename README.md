@@ -74,3 +74,49 @@ The notebook is configured to run smoothly on Google Colab T4 environments.
 2. Ensure you have the `data/` layout and any test assets present.
 3. Open `notebook/phase1_colab.ipynb`.
 4. Install requirements and execute the end-to-end pipeline cells.
+
+## Phase 2: RAG-Based QA System Architecture
+
+Phase 2 builds upon the dataset ingestion pipeline and introduces a seamless QA system using LLMs.
+
+### Retrieval Transparency & Source Traceability
+
+The system exposes full traceability back to the retrieved chunks including latency calculations and explicit score tracking:
+```json
+{
+  "question": "What is wrong with the car?",
+  "answer": "...",
+  "sources": [
+    {
+      "document_name": "...",
+      "category": "...",
+      "source": "...",
+      "chunk_id": 10,
+      "distance": 0.5
+    }
+  ],
+  "retrieved_chunks": ["..."],
+  "retrieval_scores": [0.5],
+  "retrieval_time_ms": 150.5
+}
+```
+
+### New Layers Architecture
+
+```
+Question
+↓
+Retriever
+↓
+Retrieved Chunks
+↓
+Prompt Builder
+↓
+LLM Engine
+↓
+Grounded Answer
+↓
+Source Traceability
+↓
+RAG Evaluator
+```

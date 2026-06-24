@@ -1,0 +1,32 @@
+from typing import List, Dict, Any
+from src.utils import get_logger
+
+logger = get_logger(__name__)
+
+class PromptBuilder:
+    def __init__(self):
+        """Initializes the PromptBuilder."""
+        self.system_prompt = (
+            "You are an automotive technical assistant.\n\n"
+            "Answer ONLY using the provided context.\n\n"
+            "If the answer cannot be found in the provided context, respond exactly:\n\n"
+            "\"Information not found in provided documents.\"\n"
+        )
+
+    def build_prompt(self, question: str, retrieved_chunks: List[Dict[str, Any]]) -> str:
+        """
+        Builds the final prompt combining system instructions, retrieved context, and user question.
+        Ensures strict grounding to prevent hallucinations.
+        """
+        # Combine all chunk texts
+        context_text = "\n\n".join([item["chunk"] for item in retrieved_chunks if "chunk" in item])
+
+        prompt = (
+            f"{self.system_prompt}\n"
+            f"Context:\n{context_text}\n\n"
+            f"Question:\n{question}\n\n"
+            f"Answer:"
+        )
+
+        logger.info("Successfully built prompt from question and chunks.")
+        return prompt

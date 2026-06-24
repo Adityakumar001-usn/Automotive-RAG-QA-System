@@ -14,3 +14,11 @@ Establish a robust, memory-efficient Document Processing Pipeline tailored for l
 *   **Metadata Generator (`metadata_generator.py`)**: Rule-based inference eliminates the need for manual tagging. The category is directly inferred from the `data/` subdirectory structure.
 *   **Vector Database (`vector_store.py`)**: A lightweight wrapper around `faiss.IndexFlatL2` tracking vectors and storing chunks + metadata alongside it via standard python persistence.
 *   **Colab Optimization**: All modules operate iteratively to be safe for typical T4 runtimes (e.g. streaming vectors to FAISS rather than buffering them unnecessarily).
+
+## Phase 2 Additions
+
+### Configurable LLM Architecture
+The system prevents hardcoding via `src/config.py`. Using a `SUPPORTED_LLMS` pattern allows swapping `Phi-3`, `Gemma-2b`, and `Qwen` configurations safely.
+
+### Evaluator Pattern
+A lightweight `RAGEvaluator` class has been implemented strictly determining if an answer was successfully identified versus using the strict fallback generic phrasing. It tracks source and chunk retrieval limits.
