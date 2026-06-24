@@ -94,6 +94,17 @@ The test suite ensures offline reliability. `SentenceTransformer` and HuggingFac
 python3 -m pytest tests/
 ```
 
+## Google Colab Usage
+
+The system is configured to run smoothly on Google Colab T4 environments via a single, unified execution notebook that runs all 3 Phases natively!
+
+1. Go to [colab.research.google.com](https://colab.research.google.com/).
+2. Select **File > Open notebook > GitHub**.
+3. Paste the URL to this repository.
+4. Open the **`notebook/automotive_rag_master.ipynb`** file.
+5. Set your Runtime to **T4 GPU**.
+6. Run the cells sequentially! The notebook will automatically clone the backend, allow you to upload your own files, index them, ask RAG questions, and generate the final Phase 3 analytics dashboards.
+
 ### Phase 3: Context Window Study
 Phase 3 expands the QA system by introducing an evaluation framework designed to benchmark different context window sizes.
 1. **Benchmark Runner (`src/benchmark_runner.py`)**: Automates executions over multiple configurations, saving granular and aggregate datasets via CSVs.
