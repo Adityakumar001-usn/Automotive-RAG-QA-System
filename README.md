@@ -78,6 +78,8 @@ Automotive-RAG-QA-System/
 
 **Prerequisites:** Python 3.11+ and Tesseract OCR.
 
+*Note: The environment specifically pins `transformers==4.41.2` and `accelerate==0.30.1` because newer versions (e.g. 5.12.0) have known instantiation conflicts (`KeyError: 'type'`) with `Phi-3-mini-4k-instruct` tensor layers natively.*
+
 ```bash
 # Ubuntu dependency for OCR
 sudo apt-get install tesseract-ocr
@@ -104,6 +106,8 @@ The easiest way to execute, demonstrate, and evaluate the Automotive RAG Questio
 4. Open the **`notebook/automotive_rag_master.ipynb`** file.
 5. Set your Runtime to **T4 GPU** (`Runtime > Change runtime type > T4 GPU`).
 6. Run the cells sequentially! The notebook will automatically clone the backend, allow you to upload your own files, index them, ask RAG questions, and generate the final Phase 3 analytics dashboards natively.
+
+*Recommendation: For the best evaluation experience, upload multiple documents from different categories together (e.g., Service Manuals, TSBs, Wiring Diagrams, Maintenance Schedules) during the upload prompt in Section 2. The pipeline handles multi-category processing transparently, mapping chunks appropriately.*
 
 *(Note: The individual phase notebooks remain available in the `notebook/` folder for detailed module-by-module study).*
 

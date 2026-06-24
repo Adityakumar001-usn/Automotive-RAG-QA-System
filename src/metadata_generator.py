@@ -35,6 +35,22 @@ def generate_metadata(file_path: str, num_pages: int = 1, num_chunks: int = 0) -
     document_name, extension = os.path.splitext(filename)
     document_type = extension.lstrip('.').lower()
 
+    # Priority 2: Fallback to keyword matching if folder structure is flat/unknown
+    if category == "unknown":
+        name_lower = document_name.lower()
+        if "manual" in name_lower or "service" in name_lower:
+            category = "service_manual"
+        elif "repair" in name_lower or "procedure" in name_lower:
+            category = "repair_procedure"
+        elif "diag" in name_lower or "flowchart" in name_lower:
+            category = "diagnostic_flowchart"
+        elif "wiring" in name_lower or "diagram" in name_lower:
+            category = "wiring_description"
+        elif "maintenance" in name_lower or "schedule" in name_lower:
+            category = "maintenance_schedule"
+        elif "tsb" in name_lower or "bulletin" in name_lower:
+            category = "technical_service_bulletin"
+
     # Guarantee uniqueness using SHA256 of the absolute path
     abs_path = os.path.abspath(file_path)
     doc_id = hashlib.sha256(abs_path.encode('utf-8')).hexdigest()
