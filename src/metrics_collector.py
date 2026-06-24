@@ -24,8 +24,13 @@ class MetricsCollector:
         mem_info = process.memory_info()
         return mem_info.rss / (1024 * 1024)
 
-    def get_gpu_memory_mb(self) -> float:
-        """Returns allocated GPU memory in MB. Returns 0.0 if CUDA is unavailable."""
+    def reset_peak_gpu_memory(self):
+        """Resets the peak memory stats if CUDA is available."""
         if torch.cuda.is_available():
-            return torch.cuda.memory_allocated() / (1024 * 1024)
+            torch.cuda.reset_peak_memory_stats()
+
+    def get_gpu_memory_mb(self) -> float:
+        """Returns peak allocated GPU memory in MB. Returns 0.0 if CUDA is unavailable."""
+        if torch.cuda.is_available():
+            return torch.cuda.max_memory_allocated() / (1024 * 1024)
         return 0.0

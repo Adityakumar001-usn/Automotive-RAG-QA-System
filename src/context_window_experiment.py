@@ -1,6 +1,5 @@
 import torch
 from typing import List, Dict, Any
-from src.llm_engine import _TOKENIZER, LLMEngine
 from src.prompt_builder import PromptBuilder
 from src.utils import get_logger
 
@@ -22,8 +21,8 @@ class ContextWindowExperiment:
         adhere to the max_tokens limit using the underlying HuggingFace tokenizer.
         Returns the truncated chunks and the total number of tokens used.
         """
-        global _TOKENIZER
-        if _TOKENIZER is None:
+        import src.llm_engine as llm_engine
+        if llm_engine._TOKENIZER is None:
             logger.warning("Tokenizer not loaded, skipping strict token truncation.")
             return chunks, 0
 
@@ -34,7 +33,7 @@ class ContextWindowExperiment:
             text = item.get("chunk", "")
 
             # Count tokens of current chunk
-            encoded = _TOKENIZER(text, add_special_tokens=False)["input_ids"]
+            encoded = llm_engine._TOKENIZER(text, add_special_tokens=False)["input_ids"]
             if hasattr(encoded, 'tolist'): # handle torch tensors if tokenizer returns them by default
                 encoded = encoded.tolist()
                 if isinstance(encoded[0], list):
@@ -49,7 +48,7 @@ class ContextWindowExperiment:
                 remaining_tokens = max_tokens - current_tokens
                 if remaining_tokens > 0:
                     truncated_ids = encoded[:remaining_tokens]
-                    truncated_text = _TOKENIZER.decode(truncated_ids, skip_special_tokens=True)
+                    truncated_text = llm_engine._TOKENIZER.decode(truncated_ids, skip_special_tokens=True)
                     new_item = item.copy()
                     new_item["chunk"] = truncated_text
                     truncated_chunks.append(new_item)

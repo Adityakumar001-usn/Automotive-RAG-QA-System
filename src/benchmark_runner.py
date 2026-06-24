@@ -39,7 +39,7 @@ class BenchmarkRunner:
             for q in self.questions:
                 # Measure memory before
                 mem_cpu_before = self.metrics.get_cpu_memory_mb()
-                mem_gpu_before = self.metrics.get_gpu_memory_mb()
+                self.metrics.reset_peak_gpu_memory()
 
                 # Measure latency
                 self.metrics.start_timer()
@@ -48,11 +48,10 @@ class BenchmarkRunner:
 
                 # Measure memory after
                 mem_cpu_after = self.metrics.get_cpu_memory_mb()
-                mem_gpu_after = self.metrics.get_gpu_memory_mb()
+                peak_gpu = self.metrics.get_gpu_memory_mb()
 
                 # We calculate the delta or simply track peak for this run
                 peak_cpu = max(mem_cpu_before, mem_cpu_after)
-                peak_gpu = max(mem_gpu_before, mem_gpu_after)
 
                 latencies.append(latency_ms)
                 memory_cpus.append(peak_cpu)
@@ -80,13 +79,18 @@ class BenchmarkRunner:
             hit_rate = self.evaluator.retrieval_hit_rate(window_responses)
             avg_utilization = sum([r.get("context_utilization_percent", 0.0) for r in window_responses]) / len(window_responses)
 
+            avg_distance = sum([self.evaluator.average_distance(r) for r in window_responses]) / len(window_responses)
+            avg_score = sum([self.evaluator.average_retrieval_score(r) for r in window_responses]) / len(window_responses)
+
             self.summary_results.append({
                 "window_size": window,
                 "avg_latency_ms": avg_latency,
                 "avg_memory_cpu_mb": avg_cpu,
                 "avg_memory_gpu_mb": avg_gpu,
                 "hit_rate": hit_rate,
-                "avg_utilization_percent": avg_utilization
+                "avg_utilization_percent": avg_utilization,
+                "avg_distance": avg_distance,
+                "avg_retrieval_score": avg_score
             })
 
     def generate_outputs(self):
@@ -114,9 +118,9 @@ class BenchmarkRunner:
             w = csv.DictWriter(f, fieldnames=["window_size", "avg_memory_cpu_mb", "avg_memory_gpu_mb"])
             w.writeheader(); w.writerows(memory_data)
 
-        quality_data = [{"window_size": r["window_size"], "hit_rate": r["hit_rate"]} for r in self.summary_results]
+        quality_data = [{"window_size": r["window_size"], "hit_rate": r["hit_rate"], "avg_distance": r["avg_distance"], "avg_retrieval_score": r["avg_retrieval_score"]} for r in self.summary_results]
         with open(f"{self.results_dir}/answer_quality_results.csv", "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=["window_size", "hit_rate"])
+            w = csv.DictWriter(f, fieldnames=["window_size", "hit_rate", "avg_distance", "avg_retrieval_score"])
             w.writeheader(); w.writerows(quality_data)
 
         with open(f"{self.results_dir}/context_window_summary.csv", "w", newline="") as f:

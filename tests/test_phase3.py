@@ -61,3 +61,14 @@ def test_context_window_truncation_via_tokenizer(clean_results_dir):
         md = f.read()
         assert "Overall Recommended Window:" in md
         assert "Best Latency Window:" in md
+
+    # Verify utilization percent is explicitly generated
+    import csv
+    with open("results/raw_benchmark_results.csv", "r") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 8 # 4 windows x 2 questions
+
+        for row in rows:
+            utilization = float(row["context_utilization_percent"])
+            assert utilization > 0.0, f"Expected utilization > 0.0, got {utilization}"
