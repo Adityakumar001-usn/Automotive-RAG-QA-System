@@ -14,7 +14,9 @@ def process_document(file_path: str) -> Tuple[str, Dict[str, Any]]:
     Returns the cleaned text and the generated metadata.
     Note: num_chunks is initialized to 0 and should be updated after chunking.
     """
-    logger.info(f"Starting processing pipeline for: {file_path}")
+    import time
+    start = time.time()
+    logger.info(f"[PHASE 2] Document Processing - Starting processing pipeline for: {file_path}")
 
     # 1. Ingestion
     raw_text, num_pages = ingest_document(file_path)
@@ -25,5 +27,5 @@ def process_document(file_path: str) -> Tuple[str, Dict[str, Any]]:
     # 3. Metadata Generation
     metadata = generate_metadata(file_path, num_pages=num_pages, num_chunks=0)
 
-    logger.info(f"Completed processing pipeline for: {file_path}")
+    logger.info(f"[PHASE 2] Document Processing - Completed in {time.time()-start:.2f}s for: {file_path}")
     return cleaned_text, metadata

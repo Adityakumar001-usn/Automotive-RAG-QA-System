@@ -94,16 +94,18 @@ The test suite ensures offline reliability. `SentenceTransformer` and HuggingFac
 python3 -m pytest tests/
 ```
 
-## Google Colab Usage
+## Quick Start (Recommended)
 
-The system is configured to run smoothly on Google Colab T4 environments via a single, unified execution notebook that runs all 3 Phases natively!
+The easiest way to execute, demonstrate, and evaluate the Automotive RAG Question Answering System is via the unified Master Notebook. This notebook is highly recommended for Colab execution, supervisor demonstrations, and dissertation evaluations.
 
 1. Go to [colab.research.google.com](https://colab.research.google.com/).
 2. Select **File > Open notebook > GitHub**.
 3. Paste the URL to this repository.
 4. Open the **`notebook/automotive_rag_master.ipynb`** file.
-5. Set your Runtime to **T4 GPU**.
-6. Run the cells sequentially! The notebook will automatically clone the backend, allow you to upload your own files, index them, ask RAG questions, and generate the final Phase 3 analytics dashboards.
+5. Set your Runtime to **T4 GPU** (`Runtime > Change runtime type > T4 GPU`).
+6. Run the cells sequentially! The notebook will automatically clone the backend, allow you to upload your own files, index them, ask RAG questions, and generate the final Phase 3 analytics dashboards natively.
+
+*(Note: The individual phase notebooks remain available in the `notebook/` folder for detailed module-by-module study).*
 
 ### Phase 3: Context Window Study
 Phase 3 expands the QA system by introducing an evaluation framework designed to benchmark different context window sizes.

@@ -72,6 +72,9 @@ class AutomotiveRAG:
         # 3. Generate Answer
         answer = self.llm_engine.generate_response(prompt)
 
+        # Phase 8: RAG Evaluator Hook Output explicitly
+        logger.info("[PHASE 8] Evaluation - Computing metrics for generated answer")
+
         result = {
             "question": question,
             "answer": answer,

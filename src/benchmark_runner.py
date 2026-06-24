@@ -12,6 +12,13 @@ from src.utils import get_logger
 logger = get_logger(__name__)
 
 class BenchmarkRunner:
+    """
+    Automated execution engine that loops through configurations evaluating the model against a dataset.
+
+    Why it exists:
+    Instead of manually typing questions into the AI 80 times to figure out the latency/memory stats,
+    this runner automatically tests 20 questions against 4 window sizes and saves the output to CSV/Plots.
+    """
     def __init__(self, rag_engine, questions_path: str = "data/evaluation_questions.json"):
         self.experiment = ContextWindowExperiment(rag_engine)
         self.metrics = MetricsCollector()

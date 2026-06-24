@@ -9,6 +9,10 @@ class ContextWindowExperiment:
     """
     Engine for running the RAG pipeline dynamically limited by strict Token Window bounds
     rather than character bounds.
+
+    Why it exists:
+    For Phase 3 benchmarking, we need to test exactly how the LLM behaves if we restrict its knowledge
+    to specifically 512, 1024, 2048, or 4096 tokens using its exact underlying vocabulary logic.
     """
     def __init__(self, rag_engine):
         self.rag = rag_engine

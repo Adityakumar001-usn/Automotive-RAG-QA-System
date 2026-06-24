@@ -43,7 +43,18 @@ def extract_pdf(file_path: str) -> Tuple[str, int]:
         raise
 
 def extract_csv(file_path: str) -> Tuple[str, int]:
-    """Extracts text from a CSV file."""
+    """
+    Extracts text from a CSV file.
+
+    Why it exists:
+    Automotive data often comes in tabular formats (like parts lists). We need to read these tables
+    and flatten them into strings so the LLM can interpret them.
+
+    Inputs:
+    file_path (str): The exact location of the CSV file.
+    Outputs:
+    Tuple[str, int]: A string of all row data, and a page count of 1 (since CSVs aren't paginated).
+    """
     try:
         df = pd.read_csv(file_path)
         # Convert all rows to a string representation
@@ -54,7 +65,12 @@ def extract_csv(file_path: str) -> Tuple[str, int]:
         raise
 
 def extract_docx(file_path: str) -> Tuple[str, int]:
-    """Extracts text from a DOCX file."""
+    """
+    Extracts text from a DOCX file.
+
+    Why it exists:
+    Used to parse Microsoft Word files like generated maintenance schedules.
+    """
     try:
         doc = Document(file_path)
         text = "\n".join([para.text for para in doc.paragraphs])
@@ -64,7 +80,12 @@ def extract_docx(file_path: str) -> Tuple[str, int]:
         raise
 
 def extract_xlsx(file_path: str) -> Tuple[str, int]:
-    """Extracts text from an XLSX file using pandas."""
+    """
+    Extracts text from an XLSX file using pandas.
+
+    Why it exists:
+    Multi-sheet Excel files are common in large repair matrices. We extract all sheets into a single long string.
+    """
     try:
         # Read all sheets
         dict_df = pd.read_excel(file_path, sheet_name=None, engine='openpyxl')
@@ -78,7 +99,12 @@ def extract_xlsx(file_path: str) -> Tuple[str, int]:
         raise
 
 def extract_txt(file_path: str) -> Tuple[str, int]:
-    """Extracts text from a TXT file."""
+    """
+    Extracts text from a TXT file.
+
+    Why it exists:
+    For simple, raw text diagnostic logs.
+    """
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             text = f.read()
@@ -106,7 +132,7 @@ def ingest_document(file_path: str) -> Tuple[str, int]:
     Ingests a document based on its extension.
     Returns the extracted raw text and the number of pages (or 1 for non-paginated formats).
     """
-    logger.info(f"Ingesting document: {file_path}")
+    logger.info(f"[PHASE 1] Dataset Ingestion - Processing document: {file_path}")
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
