@@ -1,107 +1,28 @@
-# Automotive RAG Question Answering System - Phase 1
+# Automotive RAG Question Answering System
 
-This repository contains the Phase 1 Foundation for an Automotive Retrieval-Augmented Generation (RAG) Question Answering System. The focus of this phase is on the **Dataset Preparation** and **Document Processing Pipeline**.
+This repository contains the foundation and execution engine for an Automotive Retrieval-Augmented Generation (RAG) Question Answering System. The system spans multiple phases from raw dataset preparation to robust LLM inference and tracing.
 
-## System Architecture
+## Architecture
 
-Phase 1 encompasses the ingestion of unstructured automotive documents, cleaning, metadata inference, chunking, and vectorization:
+The system is currently composed of two primary phases, integrating ingestion, chunking, and deterministic LLM inference seamlessly:
 
-1. **Ingestion (`src/ingestion.py`)**: Supports reading PDF (PyMuPDF), CSV/XLSX (Pandas/openpyxl), DOCX (python-docx), TXT, and Images (pytesseract/Pillow).
+### Phase 1: Dataset Preparation & Document Pipeline
+1. **Ingestion (`src/ingestion.py`)**: Supports reading PDF (PyMuPDF), CSV/XLSX (Pandas/openpyxl), DOCX (python-docx), TXT, and Images (pytesseract/Pillow). Handles OCR dependency fallbacks explicitly.
 2. **Cleaning & Metadata (`src/utils.py`, `src/metadata_generator.py`)**:
    - Uses lightweight generic heuristics (regex and string ops) to remove headers/footers, normalize text, and remove blank lines.
-   - Infers structured metadata based on the directory layout (e.g., categorizing `service_manuals` automatically).
+   - Generates unique SHA256 IDs for documents to prevent metadata collision.
 3. **Chunking (`src/chunking.py`)**: Implements Native Python algorithms for Fixed, Overlapping, and Recursive (Paragraph -> Sentence -> Word) chunking.
 4. **Embeddings (`src/embeddings.py`)**: Uses `sentence-transformers/all-MiniLM-L6-v2` loaded strictly on CPU and outputs memory-efficient NumPy arrays.
-5. **Vector Store & Retriever (`src/vector_store.py`, `src/retriever.py`)**:
-   - Manages a FAISS `IndexFlatL2` vector store.
-   - Provides Top-K similarity search functionality for downstream RAG queries.
+5. **Vector Store (`src/vector_store.py`)**: Manages a CPU-only FAISS `IndexFlatL2` vector store.
 
-## Folder Structure
+### Phase 2: RAG QA System
+1. **Retriever (`src/retriever.py`)**: Top-K retrieval generating chunk texts and precise FAISS similarity distances.
+2. **Prompt Builder (`src/prompt_builder.py`)**: Rigid prompt templates preventing hallucination, featuring strict `MAX_CONTEXT_CHARS` protections against token overflow.
+3. **LLM Engine (`src/llm_engine.py`)**: Singleton, lazy-loaded inference interface. Uses 4-bit `BitsAndBytesConfig` quantization dynamically assigned via `device_map="auto"` on GPUs with full CPU fallback mapping.
+4. **Automotive RAG & Transparency (`src/rag_engine.py`)**: The pipeline controller. Embeds detailed retrieval logs (chunks, latencies, and explicit distances) into the output dictionary and optional `outputs/retrieval_logs/*.json` hashes.
+5. **RAG Evaluator (`src/rag_evaluator.py`)**: Computes analytical checks (answer validity, distances, source bounds) natively.
 
-```
-Automotive-RAG-QA-System/
-├── data/                       # Contains all document datasets categorized by subfolder
-│   ├── service_manuals/
-│   ├── repair_procedures/
-│   ├── diagnostic_flowcharts/
-│   ├── wiring_descriptions/
-│   ├── maintenance_schedules/
-│   └── tsb/
-├── metadata/                   # Output directory for structured metadata files (if needed)
-├── faiss_index/                # Persistent storage for FAISS indices and chunk pickles
-├── outputs/                    # General directory for arbitrary pipeline outputs
-├── src/                        # Source code modules
-│   ├── ingestion.py
-│   ├── processing.py
-│   ├── chunking.py
-│   ├── metadata_generator.py
-│   ├── embeddings.py
-│   ├── vector_store.py
-│   ├── retriever.py
-│   └── utils.py
-├── tests/                      # Unit tests suite (pytest)
-├── test_assets/                # Dummy files to facilitate unit tests and notebook demos
-├── notebook/
-│   └── phase1_colab.ipynb      # Google Colab compatible demonstration
-├── requirements.txt            # Python dependencies
-└── README.md                   # System documentation
-```
-
-## Setup & Installation
-
-**Prerequisites:** Python 3.11+ and Tesseract OCR installed on the system (for image extraction).
-
-```bash
-# Ubuntu system dependency for OCR
-sudo apt-get install tesseract-ocr
-
-# Install Python requirements
-pip install -r requirements.txt
-```
-
-## Running the Tests
-
-To ensure the pipeline works and does not attempt to download models from HuggingFace (they are mocked during testing), execute:
-
-```bash
-python3 -m pytest tests/
-```
-
-## Google Colab Usage
-
-The notebook is configured to run smoothly on Google Colab T4 environments.
-1. Upload the repository contents to Colab.
-2. Ensure you have the `data/` layout and any test assets present.
-3. Open `notebook/phase1_colab.ipynb`.
-4. Install requirements and execute the end-to-end pipeline cells.
-
-## Phase 2: RAG-Based QA System Architecture
-
-Phase 2 builds upon the dataset ingestion pipeline and introduces a seamless QA system using LLMs.
-
-### Retrieval Transparency & Source Traceability
-
-The system exposes full traceability back to the retrieved chunks including latency calculations and explicit score tracking:
-```json
-{
-  "question": "What is wrong with the car?",
-  "answer": "...",
-  "sources": [
-    {
-      "document_name": "...",
-      "category": "...",
-      "source": "...",
-      "chunk_id": 10,
-      "distance": 0.5
-    }
-  ],
-  "retrieved_chunks": ["..."],
-  "retrieval_scores": [0.5],
-  "retrieval_time_ms": 150.5
-}
-```
-
-### New Layers Architecture
+#### Phase 2 Architecture Flow
 
 ```
 Question
@@ -121,8 +42,54 @@ Source Traceability
 RAG Evaluator
 ```
 
-### Hardening Enhancements (Pre-Phase 3)
-* **Context Overflow Protection**: Truncates retrieved chunks to a strict maximum character limit to prevent LLM hallucination and context window overflow crashes.
-* **Retrieval Logging**: Allows saving the full RAG trace into a uniquely hashed `outputs/retrieval_logs/*.json` file to aid debugging.
-* **Device Placement Strategy**: Allows the HuggingFace `device_map="auto"` mechanism to intelligently determine model placement and tensor mapping rather than forcing naive `.to("cuda")` instructions.
-* **Metadata Integrity**: Replaced raw file names with SHA256 hashes of the absolute file path, guaranteeing unique vector mapping.
+## Folder Structure
+
+```text
+Automotive-RAG-QA-System/
+├── data/                       # Categorized source documents (manuals, TSBs, etc)
+├── metadata/
+├── faiss_index/                # Persistent FAISS store
+├── outputs/                    # Output logs & traces (e.g. outputs/retrieval_logs/)
+├── src/                        # Core application modules
+│   ├── config.py
+│   ├── chunking.py
+│   ├── embeddings.py
+│   ├── ingestion.py
+│   ├── llm_engine.py
+│   ├── metadata_generator.py
+│   ├── processing.py
+│   ├── prompt_builder.py
+│   ├── rag_engine.py
+│   ├── rag_evaluator.py
+│   ├── retriever.py
+│   ├── utils.py
+│   └── vector_store.py
+├── tests/                      # Pytest suite
+├── test_assets/
+├── notebook/
+│   ├── phase1_colab.ipynb
+│   └── phase2_rag_demo.ipynb
+├── requirements.txt
+├── DESIGN_SUMMARY.md
+└── README.md
+```
+
+## Setup & Installation
+
+**Prerequisites:** Python 3.11+ and Tesseract OCR.
+
+```bash
+# Ubuntu dependency for OCR
+sudo apt-get install tesseract-ocr
+
+# Install Python requirements
+pip install -r requirements.txt
+```
+
+## Running Tests
+
+The test suite ensures offline reliability. `SentenceTransformer` and HuggingFace Tokenizers/Models are strictly mocked to prevent network bandwidth leakage.
+
+```bash
+python3 -m pytest tests/
+```
