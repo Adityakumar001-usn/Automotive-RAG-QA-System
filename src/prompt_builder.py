@@ -18,8 +18,15 @@ class PromptBuilder:
         Builds the final prompt combining system instructions, retrieved context, and user question.
         Ensures strict grounding to prevent hallucinations.
         """
+        from src.config import MAX_CONTEXT_CHARS
+
         # Combine all chunk texts
         context_text = "\n\n".join([item["chunk"] for item in retrieved_chunks if "chunk" in item])
+
+        # Truncate context to prevent Model Context Window Overflow
+        if len(context_text) > MAX_CONTEXT_CHARS:
+            logger.warning(f"Context exceeds {MAX_CONTEXT_CHARS} characters. Truncating to prevent overflow.")
+            context_text = context_text[:MAX_CONTEXT_CHARS]
 
         prompt = (
             f"{self.system_prompt}\n"

@@ -22,3 +22,8 @@ The system prevents hardcoding via `src/config.py`. Using a `SUPPORTED_LLMS` pat
 
 ### Evaluator Pattern
 A lightweight `RAGEvaluator` class has been implemented strictly determining if an answer was successfully identified versus using the strict fallback generic phrasing. It tracks source and chunk retrieval limits.
+
+### Hardening Features
+* Added programmatic context protection limits.
+* Enhanced evaluator logic to return `average_distance` and `average_retrieval_score`.
+* Device tensor execution mapping now utilizes the inherent model instance `device` mapping rather than explicit CUDA allocations, preventing placement mismatch errors when combined with BitsAndBytes configuration boundaries.

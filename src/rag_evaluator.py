@@ -26,3 +26,24 @@ class RAGEvaluator:
         Returns the number of retrieved chunks.
         """
         return len(response.get("retrieved_chunks", []))
+
+    def average_distance(self, response: Dict[str, Any]) -> float:
+        """
+        Calculates the average distance from the retrieved sources.
+        """
+        sources = response.get("sources", [])
+        if not sources:
+            return 0.0
+
+        distances = [s.get("distance", 0.0) for s in sources]
+        return sum(distances) / len(distances)
+
+    def average_retrieval_score(self, response: Dict[str, Any]) -> float:
+        """
+        Calculates the average retrieval score from the retrieved chunks.
+        """
+        scores = response.get("retrieval_scores", [])
+        if not scores:
+            return 0.0
+
+        return sum(scores) / len(scores)

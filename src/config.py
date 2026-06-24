@@ -9,6 +9,7 @@ CHUNK_OVERLAP = 100
 
 # Retrieval Settings
 TOP_K = 5
+ENABLE_RETRIEVAL_LOGGING = False
 
 # Embedding Model (Phase 1/2)
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -23,3 +24,4 @@ SUPPORTED_LLMS = [
 MAX_NEW_TOKENS = 256
 TEMPERATURE = 0.1
 USE_4BIT = True
+MAX_CONTEXT_CHARS = 3000

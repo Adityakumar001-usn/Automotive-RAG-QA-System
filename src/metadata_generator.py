@@ -30,12 +30,17 @@ def generate_metadata(file_path: str, num_pages: int = 1, num_chunks: int = 0) -
 
     category = category_map.get(parent_dir, "unknown")
 
+    import hashlib
     filename = os.path.basename(file_path)
     document_name, extension = os.path.splitext(filename)
     document_type = extension.lstrip('.').lower()
 
+    # Guarantee uniqueness using SHA256 of the absolute path
+    abs_path = os.path.abspath(file_path)
+    doc_id = hashlib.sha256(abs_path.encode('utf-8')).hexdigest()
+
     metadata = {
-        "document_id": filename, # Using filename as a simple ID
+        "document_id": doc_id,
         "document_name": document_name,
         "document_type": document_type,
         "category": category,

@@ -1,0 +1,30 @@
+{
+  "question": "What is wrong with the car?",
+  "answer": "Mocked deterministic answer based on context.",
+  "sources": [
+    {
+      "document_name": "doc1",
+      "category": "repair_procedure",
+      "source": "s1",
+      "chunk_id": 10,
+      "distance": 0.5
+    },
+    {
+      "document_name": "doc2",
+      "category": "service_manual",
+      "source": "s2",
+      "chunk_id": 11,
+      "distance": 0.9
+    }
+  ],
+  "retrieved_chunks": [
+    "Engine is broken.",
+    "Brakes are fine."
+  ],
+  "retrieval_scores": [
+    0.5,
+    0.9
+  ],
+  "retrieval_time_ms": 0.0064373016357421875,
+  "timestamp": "2026-06-24T10:51:51Z"
+}

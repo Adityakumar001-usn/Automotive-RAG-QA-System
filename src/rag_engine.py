@@ -71,5 +71,24 @@ class AutomotiveRAG:
             "retrieval_time_ms": retrieval_time_ms
         }
 
+        from src.config import ENABLE_RETRIEVAL_LOGGING
+        if ENABLE_RETRIEVAL_LOGGING:
+            import os
+            import json
+            import uuid
+
+            log_dir = "outputs/retrieval_logs"
+            os.makedirs(log_dir, exist_ok=True)
+
+            log_entry = {
+                **result,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            }
+
+            log_file = os.path.join(log_dir, f"log_{uuid.uuid4().hex}.json")
+            with open(log_file, "w") as f:
+                json.dump(log_entry, f, indent=2)
+            logger.info(f"Retrieval log written to {log_file}")
+
         logger.info("Successfully completed QA pipeline.")
         return result

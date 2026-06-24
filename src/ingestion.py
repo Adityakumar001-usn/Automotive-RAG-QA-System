@@ -77,6 +77,10 @@ def extract_image_ocr(file_path: str) -> Tuple[str, int]:
         img = Image.open(file_path)
         text = pytesseract.image_to_string(img)
         return text, 1
+    except pytesseract.TesseractNotFoundError:
+        error_msg = "Tesseract OCR is not installed or not in your PATH. Please install it (e.g., 'sudo apt-get install tesseract-ocr' on Ubuntu or via installer on Windows)."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
     except Exception as e:
         logger.error(f"Error extracting Image OCR {file_path}: {e}")
         raise

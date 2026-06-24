@@ -2,11 +2,9 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from typing import List
 from src.utils import get_logger
+from src.config import EMBEDDING_MODEL
 
 logger = get_logger(__name__)
-
-# The model name is fixed per requirements
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 # Global model cache to avoid reloading
 _MODEL_INSTANCE = None
@@ -15,9 +13,9 @@ def get_model() -> SentenceTransformer:
     """Loads and caches the SentenceTransformer model on CPU."""
     global _MODEL_INSTANCE
     if _MODEL_INSTANCE is None:
-        logger.info(f"Loading SentenceTransformer model: {MODEL_NAME}")
+        logger.info(f"Loading SentenceTransformer model: {EMBEDDING_MODEL}")
         # Explicitly enforce CPU per constraints
-        _MODEL_INSTANCE = SentenceTransformer(MODEL_NAME, device='cpu')
+        _MODEL_INSTANCE = SentenceTransformer(EMBEDDING_MODEL, device='cpu')
     return _MODEL_INSTANCE
 
 def generate_embeddings(texts: List[str]) -> np.ndarray:

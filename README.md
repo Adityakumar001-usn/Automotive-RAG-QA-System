@@ -120,3 +120,9 @@ Source Traceability
 ↓
 RAG Evaluator
 ```
+
+### Hardening Enhancements (Pre-Phase 3)
+* **Context Overflow Protection**: Truncates retrieved chunks to a strict maximum character limit to prevent LLM hallucination and context window overflow crashes.
+* **Retrieval Logging**: Allows saving the full RAG trace into a uniquely hashed `outputs/retrieval_logs/*.json` file to aid debugging.
+* **Device Placement Strategy**: Allows the HuggingFace `device_map="auto"` mechanism to intelligently determine model placement and tensor mapping rather than forcing naive `.to("cuda")` instructions.
+* **Metadata Integrity**: Replaced raw file names with SHA256 hashes of the absolute file path, guaranteeing unique vector mapping.

@@ -4,7 +4,9 @@ from src.utils import get_logger
 
 logger = get_logger(__name__)
 
-def fixed_chunking(text: str, chunk_size: int = 500) -> List[str]:
+from src.config import CHUNK_SIZE, CHUNK_OVERLAP
+
+def fixed_chunking(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
     """
     Splits text into fixed size chunks (by character count).
     """
@@ -14,7 +16,7 @@ def fixed_chunking(text: str, chunk_size: int = 500) -> List[str]:
     chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
     return chunks
 
-def overlap_chunking(text: str, chunk_size: int = 500, chunk_overlap: int = 100) -> List[str]:
+def overlap_chunking(text: str, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP) -> List[str]:
     """
     Splits text into overlapping chunks (by character count).
     """
@@ -35,7 +37,7 @@ def _split_by_regex(text: str, pattern: str) -> List[str]:
     splits = re.split(pattern, text)
     return [s.strip() for s in splits if s.strip()]
 
-def recursive_chunking(text: str, chunk_size: int = 500) -> List[str]:
+def recursive_chunking(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
     """
     Recursive chunking using native Python and regex.
     Priority: Paragraph -> Sentence -> Word

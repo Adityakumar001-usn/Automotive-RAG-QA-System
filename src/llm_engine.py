@@ -60,7 +60,13 @@ class LLMEngine:
         self._load_model()
 
         global _MODEL, _TOKENIZER
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        # Allow Transformers to manage placement by extracting it from the model itself
+        # This fixes issues with device_map="auto" and BitsAndBytes configs.
+        if hasattr(_MODEL, "device"):
+            device = _MODEL.device
+        else:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
 
         inputs = _TOKENIZER(prompt, return_tensors="pt").to(device)
 
