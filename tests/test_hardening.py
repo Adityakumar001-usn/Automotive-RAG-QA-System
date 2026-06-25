@@ -63,11 +63,19 @@ def test_retrieval_metrics_and_logging():
     log_dir = "outputs/retrieval_logs"
     assert os.path.exists(log_dir)
     files = os.listdir(log_dir)
-    assert len(files) > 0
 
-    with open(os.path.join(log_dir, files[0]), "r") as f:
-        log_data = json.load(f)
-        assert "timestamp" in log_data
-        assert log_data["question"] == "Testing logging."
+    # We want to check the most recently created file, as other tests might have dropped files here.
+    # We can just filter for the ones that contain our test question to be robust.
+    found_log = False
+    for file in files:
+        with open(os.path.join(log_dir, file), "r") as f:
+            log_data = json.load(f)
+            if log_data.get("question") == "Testing logging.":
+                assert "timestamp" in log_data
+                assert log_data["retrieved_chunks"] == ["First chunk.", "Second chunk."]
+                found_log = True
+                break
+
+    assert found_log is True
 
     shutil.rmtree(log_dir)

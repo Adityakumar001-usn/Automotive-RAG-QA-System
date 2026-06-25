@@ -9,20 +9,32 @@ logger = get_logger(__name__)
 class VectorStore:
     def __init__(self, dimension: int = 384):
         """
-        Initializes the VectorStore with a FAISS IndexFlatL2.
-        Default dimension corresponds to all-MiniLM-L6-v2.
+        Initializes the VectorStore database.
+
+        Why it exists:
+        After we turn documents into number arrays (embeddings), we need a hyper-fast way to search them.
+        FAISS (Facebook AI Similarity Search) acts as our database.
+
+        Inputs:
+        dimension (int): The number of columns output by our model (384 for all-MiniLM-L6-v2).
         """
         self.dimension = dimension
+        # IndexFlatL2 is a standard FAISS index that measures straight-line distance between math vectors
         self.index = faiss.IndexFlatL2(self.dimension)
-        # Store metadata associated with each vector index
+
+        # FAISS only holds numbers, so we maintain separate Python dictionaries to map IDs back to text/metadata.
         self.metadata_store: Dict[int, Dict[str, Any]] = {}
-        # Store chunk text
         self.chunk_store: Dict[int, str] = {}
         logger.info(f"Initialized FAISS IndexFlatL2 with dimension {self.dimension}")
 
     def build_index(self, embeddings: np.ndarray, chunks: List[str], metadatas: List[Dict[str, Any]]) -> None:
         """
-        Adds embeddings, chunks, and metadata to the FAISS index.
+        Adds our newly generated document embeddings and text into the database.
+
+        Inputs:
+        embeddings (np.ndarray): The mathematical representation of our text chunks.
+        chunks (List[str]): The actual text chunks.
+        metadatas (List[Dict]): Information about where the chunk came from (file name, type).
         """
         if embeddings.shape[0] == 0:
             logger.warning("No embeddings provided to build index.")

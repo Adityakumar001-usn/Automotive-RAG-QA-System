@@ -159,10 +159,10 @@ class BenchmarkRunner:
         utilizations = [r["avg_utilization_percent"] for r in self.summary_results]
 
         # Setting consistent styling
-        plt.style.use('default')
+        plt.style.use('ggplot')
 
         # Latency Plot
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 6))
         plt.plot(windows, latencies, marker='o', linewidth=2, label="Latency")
         plt.title('Average Latency vs Context Window Size', fontsize=14, fontweight='bold')
         plt.xlabel('Window Size (Tokens)', fontsize=12)
@@ -174,7 +174,7 @@ class BenchmarkRunner:
         plt.close()
 
         # Memory Plot
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 6))
         plt.plot(windows, memories, marker='s', color='orange', linewidth=2, label="Memory")
         plt.title('Total Memory Usage vs Context Window Size', fontsize=14, fontweight='bold')
         plt.xlabel('Window Size (Tokens)', fontsize=12)
@@ -186,7 +186,7 @@ class BenchmarkRunner:
         plt.close()
 
         # Quality Plot
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 6))
         plt.plot(windows, hit_rates, marker='^', color='green', linewidth=2, label="Hit Rate")
         plt.title('Answer Hit Rate vs Context Window Size', fontsize=14, fontweight='bold')
         plt.xlabel('Window Size (Tokens)', fontsize=12)
@@ -199,7 +199,7 @@ class BenchmarkRunner:
         plt.close()
 
         # Utilization Plot
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 6))
         plt.plot(windows, utilizations, marker='D', color='purple', linewidth=2, label="Utilization")
         plt.title('Average Context Utilization vs Window Size', fontsize=14, fontweight='bold')
         plt.xlabel('Window Size (Tokens)', fontsize=12)

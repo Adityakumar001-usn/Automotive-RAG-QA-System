@@ -66,8 +66,20 @@ def _split_by_regex(text: str, pattern: str) -> List[str]:
 
 def recursive_chunking(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
     """
-    Recursive chunking using native Python and regex.
-    Priority: Paragraph -> Sentence -> Word
+    Intelligently splits text into chunks, prioritizing natural human reading boundaries.
+
+    Why it exists:
+    If we slice documents blindly, we might chop a word or sentence in half, confusing the AI.
+    This algorithm tries to split at the end of paragraphs first. If a paragraph is still too big,
+    it tries splitting by sentences. If a sentence is too big, it splits by words.
+    It is 'recursive' because it calls itself, drilling down to smaller boundaries only when necessary.
+
+    Inputs:
+    text (str): The full text to split.
+    chunk_size (int): The maximum allowed characters per chunk.
+
+    Outputs:
+    List[str]: A list of clean, logical text chunks.
     """
     if not text:
         return []

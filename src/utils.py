@@ -17,13 +17,16 @@ def get_logger(name: str) -> logging.Logger:
 
 def clean_text(text: str) -> str:
     """
-    Lightweight rule-based cleaning for automotive documents.
-    Applies the following generic heuristics:
-    - Normalizes Unicode characters.
-    - Removes page numbers (e.g., 'Page 1 of 5' or solitary numbers on lines).
-    - Removes multiple spaces.
-    - Removes duplicate blank lines.
-    - Removes repeated headers and footers (simple heuristic).
+    Cleans raw text extracted from documents to make it readable for the AI.
+
+    Why it exists:
+    PDFs and documents contain weird symbols, random page numbers like "Page 1 of 50",
+    and giant blank spaces. If we don't remove them, the AI gets confused.
+
+    How it works:
+    1. Normalizes weird Unicode symbols (like converting fancy quotes to standard quotes).
+    2. Uses regular expressions (regex) to search for and delete page number patterns.
+    3. Shrinks multiple spaces and multiple blank lines down to single spaces/newlines.
     """
     if not text:
         return ""

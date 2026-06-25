@@ -7,12 +7,17 @@ logger = get_logger(__name__)
 
 def process_document(file_path: str) -> Tuple[str, Dict[str, Any]]:
     """
-    Full processing pipeline for a single document:
-    1. Ingestion (extraction)
-    2. Cleaning
-    3. Metadata Generation
-    Returns the cleaned text and the generated metadata.
-    Note: num_chunks is initialized to 0 and should be updated after chunking.
+    Acts as the master controller for Phase 1 (Ingesting a single file).
+
+    Why it exists:
+    We need one unified function that takes a raw file on disk and runs it through
+    the entire ingestion pipeline (Reading -> Cleaning -> Tagging) in the correct order.
+
+    Inputs:
+    file_path (str): The exact file location.
+
+    Outputs:
+    Tuple[str, Dict]: The fully cleaned text ready for chunking, and the metadata dictionary.
     """
     import time
     start = time.time()

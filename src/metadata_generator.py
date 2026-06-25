@@ -7,10 +7,16 @@ logger = get_logger(__name__)
 
 def generate_metadata(file_path: str, num_pages: int = 1, num_chunks: int = 0) -> Dict[str, Any]:
     """
-    Auto-infers metadata from the file path.
-    Rules:
-    - directory dictates category
-    - filename dictates document_name and document_type (extension)
+    Auto-infers tags and categorization information (metadata) from the file path.
+
+    Why it exists:
+    When an AI retrieves a chunk of text (like "Change the oil every 5,000 miles"), we need to know
+    where that fact came from so we can provide a source citation to the user.
+
+    How it works:
+    1. Looks at the folder the file is inside (e.g., if it's in a 'tsb' folder, it tags it as a TSB).
+    2. If the folder is unknown, it reads the filename itself (e.g., 'engine_manual.pdf').
+    3. It generates a unique fingerprint (SHA-256) for the file so we can track it exactly.
     """
     file_path = os.path.normpath(file_path)
     parts = file_path.split(os.sep)

@@ -2,8 +2,12 @@ from typing import Dict, Any
 
 class RAGEvaluator:
     """
-    Lightweight evaluator for the RAG pipeline output.
-    Used to detect answer generation status, source citation counts, and retrieval counts.
+    Evaluates how well the AI system performed on a given question.
+
+    Why it exists:
+    We need an automated way to grade our pipeline. Instead of a human checking if the AI
+    found an answer, or checking how many sources it used, this class analyzes the AI's output
+    dictionary and calculates key metrics automatically.
     """
 
     def answer_found(self, response: Dict[str, Any]) -> bool:
