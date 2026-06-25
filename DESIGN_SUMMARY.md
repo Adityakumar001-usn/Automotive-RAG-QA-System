@@ -1,13 +1,13 @@
-# Phase 1 Design Summary
+# Final Production Architecture Design Summary
 
 ## Objective
-Establish a robust, memory-efficient Document Processing Pipeline tailored for large Automotive datasets (Service Manuals, TSBs, Wiring diagrams, etc.), laying the foundation for a future Retrieval-Augmented Generation (RAG) system.
+Establish a robust, end-to-end Retrieval-Augmented Generation (RAG) system tailored for large Automotive datasets (Service Manuals, TSBs, Wiring diagrams, etc.), complete with an evaluation suite for Context Window benchmarking.
 
 ## Constraints Adhered To
-1. **CPU/NumPy Storage Only**: The `src/embeddings.py` enforces device mapping to CPU, using NumPy float32 contiguous arrays to strictly satisfy memory footprint rules.
-2. **Native Python Chunking**: Rather than relying on LangChain or LlamaIndex, `src/chunking.py` implements pure regex-based recursive chunking. This maximizes portability across environments like Colab and reduces the dependency tree footprint.
-3. **No LLM Integration**: The scope intentionally omits LLM and prompt template implementations. The pipeline stops exactly at FAISS IndexFlatL2 Top-K retrieval, per requirements.
-4. **Offline Testing**: `SentenceTransformer` calls are mocked via pytest fixtures (`tests/conftest.py`) enabling fast, offline testing pipelines.
+1. **CPU/NumPy Storage Only**: The `src/embeddings.py` enforces device mapping to CPU, using NumPy float32 contiguous arrays to strictly satisfy memory footprint rules prior to FAISS indexing.
+2. **Native Python Implementations**: Rather than relying on bloated frameworks like LangChain or LlamaIndex, `src/chunking.py` implements pure regex-based recursive chunking, and the RAG engine uses native Transformers orchestration. This maximizes portability across environments like Colab and minimizes dependency conflicts.
+3. **End-to-End LLM Integration**: The pipeline implements a full Retrieval and Generation suite featuring `microsoft/Phi-3-mini-4k-instruct` natively quantized via BitsAndBytes 4-bit config on T4 GPUs.
+4. **Offline Testing**: Component networks are mocked via pytest fixtures (`tests/conftest.py`), enabling fast, offline testing pipelines without constant model downloads.
 
 ## Component Breakdown
 *   **Ingestion Pipeline (`ingestion.py`, `processing.py`)**: Extensible handlers for PDFs (PyMuPDF for speed/reliability), tabular data (Pandas), Docs, and OCR (Tesseract).

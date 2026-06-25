@@ -78,7 +78,7 @@ Automotive-RAG-QA-System/
 
 **Prerequisites:** Python 3.11+ and Tesseract OCR.
 
-*Note: The environment specifically pins `transformers==4.41.2` and `accelerate==0.30.1` because newer versions (e.g. 5.12.0) have known instantiation conflicts (`KeyError: 'type'`) with `Phi-3-mini-4k-instruct` tensor layers natively.*
+*Note: The environment specifically pins `transformers==4.41.2` and `accelerate==0.32.0` because newer versions have known instantiation conflicts with `Phi-3-mini-4k-instruct` tensor layers, and older versions of accelerate have `clear_device_cache` import errors.*
 
 ```bash
 # Ubuntu dependency for OCR
